@@ -1,12 +1,107 @@
-version: '3'
+version: '3.9'
 
 services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    network_mode: bridge
+    ports:
+      - "9000:9000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "portainer_data:/data"
+    labels:
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+    restart: unless-stopped
+  speedtest:
+    image: henrywhitaker3/speedtest-tracker
+    network_mode: bridge
+    ports:
+        - 8765:80
+    environment:
+      - OOKLA_EULA_GDPR=true
+    volumes:
+        - speedtest-volume:/config
+    restart: unless-stopped
+  kavita:
+    image: kizaing/kavita:latest
+    network_mode: bridge
+    ports:
+      - 5000:5000
+    environment:
+      - TZ=EST
+    volumes:
+      - /mnt/media/books:/manga
+      - /mnt/media/kavita:/kavita/config
+    restart: unless-stopped
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    network_mode: bridge
+    ports:
+      - 8081:80
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - heimdall-volume:/config
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana-enterprise:latest
+    network_mode: bridge
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    network_mode: bridge
+    ports:
+      - 13378:80
+    volumes:
+      - /mnt/media/audiobookshelf/audiobooks:/audiobooks
+      - /mnt/media/audiobookshelf/podcasts:/podcasts
+      - /mnt/media/audiobookshelf/config:/config
+      - /mnt/media/audiobookshelf/metadata:/metadata
+    restart: unless-stopped
+  arm:
+    image: automaticrippingmachine/automatic-ripping-machine:latest
+    network_mode: bridge
+    ports: 
+      - 8100:8080
+    environment:
+      - ARM_UID=${ARM_UID}
+      - ARM_GID=${ARM_GID}
+      - MAKEMKV_APP_KEY=${MAKEMKV_APP_KEY}
+    volumes:
+      - /mnt/media/arm:/home/arm
+      - /mnt/media/arm/Music:/home/arm/Music
+      - /mnt/media/arm/logs:/home/arm/logs
+      - /mnt/media/arm/media:/home/arm/media
+      - /mnt/media/arm/config:/etc/arm/config
+      - /mnt/media/arm/db:/home/arm/db
+    devices:
+      - /dev/sr0:/dev/sr0
+    privileged: true
+    restart: unless-stopped
+    cpus: 0.75
   traefik:
     # The official v2 Traefik docker image
     image: traefik:v2.9
-    network_mode: "host"
+    network_mode: host
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      # Set default rule to use "servicename"."host" as domain.
+      - "--providers.docker.defaultRule=Host(`{{ index .Labels \"com.docker.compose.service\"}}.${HOST}`)"
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
-      - /mnt/media/traefik/traefik.yml:/etc/traefik/traefik.yml
     restart: unless-stopped
+
+volumes:
+  portainer_data:
+    external: true
+  speedtest-volume:
+    external: true
+  heimdall-volume:
+    external: true
+  

@@ -1,0 +1,17 @@
+version: '3.9'
+
+services: 
+  sqlfts:
+    image: jd/mssql-fts:ubuntu
+    network_mode: bridge
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_AGENT_ENABLED=true
+      - SA_PASSWORD=${SQL_SA_PASSWORD}
+    volumes:
+      - ${SQL_DATA_FOLDER}:/var/opt/mssql/data
+    labels:
+      - traefik.enable=false
+    restart: unless-stopped

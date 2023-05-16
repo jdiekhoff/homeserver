@@ -1,27 +1,51 @@
 version: '3.9'
 
 services:
-  sqlfts:
-    image: jd/mssql-fts:ubuntu
-    container_name: sql-fts
+  kavita:
+    image: kizaing/kavita:latest
     network_mode: bridge
     ports:
-      - "1433:1433"
+      - 5000:5000
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_AGENT_ENABLED=true
-      - SA_PASSWORD=${SQL_SA_PASSWORD}
+      - TZ=EST
     volumes:
-      - ${SQL_DATA_FOLDER}:/var/opt/mssql/data
-    labels:
-      - traefik.enable=false
+      - /mnt/media/books:/manga
+      - /mnt/media/kavita:/kavita/config
+    restart: unless-stopped
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    network_mode: bridge
+    ports:
+      - 8081:80
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - heimdall-volume:/config
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana-enterprise:latest
+    network_mode: bridge
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    network_mode: bridge
+    ports:
+      - 13378:80
+    volumes:
+      - /mnt/media/audiobookshelf/audiobooks:/audiobooks
+      - /mnt/media/audiobookshelf/podcasts:/podcasts
+      - /mnt/media/audiobookshelf/config:/config
+      - /mnt/media/audiobookshelf/metadata:/metadata
     restart: unless-stopped
   arm:
     image: automaticrippingmachine/automatic-ripping-machine:latest
-    container_name: arm-rippers
     network_mode: bridge
     ports: 
-      - "8100:8080"
+      - 8100:8080
     environment:
       - ARM_UID=${ARM_UID}
       - ARM_GID=${ARM_GID}
@@ -41,10 +65,17 @@ services:
   traefik:
     # The official v2 Traefik docker image
     image: traefik:v2.9
-    container_name: traefik
     network_mode: host
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      # Set default rule to use "servicename"."host" as domain.
+      - "--providers.docker.defaultRule=Host(`{{ index .Labels \"com.docker.compose.service\"}}.${HOST}`)"
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./config/traefik/traefik.yml:/etc/traefik/traefik.yml
     restart: unless-stopped
+
+volumes:
+  heimdall-volume:
+    external: true

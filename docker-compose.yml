@@ -1,6 +1,27 @@
 version: '3.9'
 
 services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    network_mode: bridge
+    ports:
+      - "9000:9000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "portainer_data:/data"
+    labels:
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+    restart: unless-stopped
+  speedtest:
+    image: henrywhitaker3/speedtest-tracker
+    network_mode: bridge
+    ports:
+        - 8765:80
+    environment:
+      - OOKLA_EULA_GDPR=true
+    volumes:
+        - speedtest-volume:/config
+    restart: unless-stopped
   kavita:
     image: kizaing/kavita:latest
     network_mode: bridge
@@ -77,5 +98,10 @@ services:
     restart: unless-stopped
 
 volumes:
+  portainer_data:
+    external: true
+  speedtest-volume:
+    external: true
   heimdall-volume:
     external: true
+  

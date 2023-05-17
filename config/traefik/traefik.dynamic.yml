@@ -1,0 +1,19 @@
+# traefik dynamic configuration
+
+http:
+  routers:
+    dashboard:
+      rule: Host(`traefik.{{env "HOST"}}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+      service: api@internal
+      middlewares:
+        - auth
+  middlewares:
+    auth:
+      basicAuth:
+        users:
+          - "admin:$2y$05$0ClyV/pLw0RulnLnb6KvceR9h9TKqLuZmzv4nYAOHL2x/dW97hy9K"
+
+tls:
+  certificates:
+    - certFile: /certs/{{env "CERT_NAME"}}.crt
+      keyFile: /certs/{{env "CERT_NAME"}}.key

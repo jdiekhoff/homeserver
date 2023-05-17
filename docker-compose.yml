@@ -4,8 +4,8 @@ services:
   portainer:
     image: portainer/portainer-ce:latest
     network_mode: bridge
-    ports:
-      - "9000:9000"
+    expose:
+      - 9000
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "portainer_data:/data"
@@ -15,8 +15,8 @@ services:
   speedtest:
     image: henrywhitaker3/speedtest-tracker
     network_mode: bridge
-    ports:
-        - 8765:80
+    expose:
+      - 80
     environment:
       - OOKLA_EULA_GDPR=true
     volumes:
@@ -25,8 +25,8 @@ services:
   kavita:
     image: kizaing/kavita:latest
     network_mode: bridge
-    ports:
-      - 5000:5000
+    expose:
+      - 5000
     environment:
       - TZ=EST
     volumes:
@@ -36,8 +36,8 @@ services:
   heimdall:
     image: lscr.io/linuxserver/heimdall:latest
     network_mode: bridge
-    ports:
-      - 8081:80
+    expose:
+      - 80
     environment:
       - PUID=1000
       - PGID=1000
@@ -48,14 +48,14 @@ services:
   grafana:
     image: grafana/grafana-enterprise:latest
     network_mode: bridge
-    ports:
-      - 3000:3000
+    expose:
+      - 3000
     restart: unless-stopped
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf:latest
     network_mode: bridge
-    ports:
-      - 13378:80
+    expose:
+      - 80
     volumes:
       - /mnt/media/audiobookshelf/audiobooks:/audiobooks
       - /mnt/media/audiobookshelf/podcasts:/podcasts
@@ -65,8 +65,8 @@ services:
   arm:
     image: automaticrippingmachine/automatic-ripping-machine:latest
     network_mode: bridge
-    ports: 
-      - 8100:8080
+    expose:
+      - 8080
     environment:
       - ARM_UID=${ARM_UID}
       - ARM_GID=${ARM_GID}
@@ -87,14 +87,23 @@ services:
     # The official v2 Traefik docker image
     image: traefik:v2.9
     network_mode: host
+    environment:
+      - HOST=$HOST
+      - CERT_NAME=$CERT_NAME
     command:
-      #- "--log.level=DEBUG"
-      - "--api.insecure=true"
-      # Set default rule to use "servicename"."host" as domain.
-      - "--providers.docker.defaultRule=Host(`{{ index .Labels \"com.docker.compose.service\"}}.${HOST}`)"
+      # - "--log.level=DEBUG"
+      # - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--entryPoints.http.address=:80"
+      - "--entryPoints.https.address=:443"
+      # https://doc.traefik.io/traefik/master/providers/docker/#defaultrule
+      - "--providers.docker.defaultRule=Host(`{{if index .Labels \"com.docker.compose.service\" }}{{ index .Labels \"com.docker.compose.service\" }}{{else}}{{ trimPrefix `/` .Name }}{{end}}.${HOST}`)"
+      # labels don't seem to work correctly once you add dynamic config
+      - "--providers.file.filename=/conf/dynamic.yml"
     volumes:
-      # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik/traefik.dynamic.yml:/conf/dynamic.yml:ro
+      - ./certs:/certs:ro
     restart: unless-stopped
 
 volumes:
@@ -104,4 +113,3 @@ volumes:
     external: true
   heimdall-volume:
     external: true
-  

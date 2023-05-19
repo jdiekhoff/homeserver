@@ -113,7 +113,6 @@ services:
     environment:
       - HOST=$HOST
       - CERT_NAME=$CERT_NAME
-      - EXTERNAL_SERVICES=$EXTERNAL_SERVICES
       - JSON_SERVICES=$JSON_SERVICES
     command:
       - "--log.level=DEBUG"

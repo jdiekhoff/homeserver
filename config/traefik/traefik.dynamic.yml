@@ -1,9 +1,11 @@
 # traefik dynamic configuration
 
+## traefik dashboard config
 http:
   routers:
-    dashboard:
+    websecure-dashboard:
       rule: Host(`traefik.{{env "HOST"}}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+      entrypoints: websecure
       service: api@internal
       middlewares:
         - auth
@@ -13,7 +15,10 @@ http:
         users:
           - "admin:$2y$05$0ClyV/pLw0RulnLnb6KvceR9h9TKqLuZmzv4nYAOHL2x/dW97hy9K"
 
+## TLS certs
 tls:
-  certificates:
-    - certFile: /certs/{{env "CERT_NAME"}}.crt
-      keyFile: /certs/{{env "CERT_NAME"}}.key
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/{{env "CERT_NAME"}}.crt
+        keyFile: /certs/{{env "CERT_NAME"}}.key

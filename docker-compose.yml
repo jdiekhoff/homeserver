@@ -28,7 +28,7 @@ services:
     expose:
       - 5000
     environment:
-      - TZ=EST
+      - TZ=US/East-Indiana
     volumes:
       - /mnt/media/books:/manga
       - /mnt/media/kavita:/kavita/config
@@ -44,6 +44,7 @@ services:
       - TZ=Etc/UTC
     volumes:
       - heimdall-volume:/config
+      - ${ROOT_CA}:/usr/share/ca-certificates/rootCA.pem
     restart: unless-stopped
   grafana:
     image: grafana/grafana-enterprise:latest
@@ -81,8 +82,30 @@ services:
     devices:
       - /dev/sr0:/dev/sr0
     privileged: true
-    restart: unless-stopped
     cpus: 0.75
+    restart: unless-stopped
+  weatherbuddy:
+    image: jdiggity/weatherbuddy:latest
+    network_mode: bridge
+    expose:
+      - 80
+    restart: unless-stopped
+  dozzle:
+    image: amir20/dozzle:latest
+    network_mode: bridge
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    expose: 
+      - 8080
+    restart: unless-stopped
+  ca-cert:
+    image: nginx:latest
+    network_mode: bridge
+    expose:
+      - 80
+    volumes:
+      - ${ROOT_CA}:/usr/share/nginx/html/rootCA.pem:ro
+    restart: unless-stopped
   traefik:
     # The official v2 Traefik docker image
     image: traefik:v2.9
@@ -90,19 +113,22 @@ services:
     environment:
       - HOST=$HOST
       - CERT_NAME=$CERT_NAME
+      - EXTERNAL_SERVICES=$EXTERNAL_SERVICES
+      - JSON_SERVICES=$JSON_SERVICES
     command:
-      # - "--log.level=DEBUG"
-      # - "--api.insecure=true"
+      - "--log.level=DEBUG"
       - "--api.dashboard=true"
-      - "--entryPoints.http.address=:80"
-      - "--entryPoints.https.address=:443"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--entryPoints.websecure.http.tls=true"
       # https://doc.traefik.io/traefik/master/providers/docker/#defaultrule
       - "--providers.docker.defaultRule=Host(`{{if index .Labels \"com.docker.compose.service\" }}{{ index .Labels \"com.docker.compose.service\" }}{{else}}{{ trimPrefix `/` .Name }}{{end}}.${HOST}`)"
-      # labels don't seem to work correctly once you add dynamic config
-      - "--providers.file.filename=/conf/dynamic.yml"
+      # docker labels don't seem to work correctly once you add dynamic config
+      - "--providers.file.directory=/conf"
+      - "--providers.file.watch=true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./config/traefik/traefik.dynamic.yml:/conf/dynamic.yml:ro
+      - ./config/traefik:/conf:ro
       - ./certs:/certs:ro
     restart: unless-stopped
 

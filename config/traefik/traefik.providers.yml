@@ -1,0 +1,27 @@
+# Non-docker providers
+
+{{$json := env "JSON_SERVICES" | fromJson}}
+
+http:
+  routers:
+    {{range $i, $e := $json.services}}
+    {{if $e.ssl}}
+    websecure-{{$e.name}}:
+      rule: Host(`{{$e.name}}.{{env "HOST"}}`)
+      entrypoints: websecure
+      tls: true
+      service: {{$e.name}}  
+    {{else}}
+    {{$e.name}}:
+      rule: Host(`{{$e.name}}.{{env "HOST"}}`)
+      entrypoints: web
+      service: {{$e.name}}
+    {{end}}
+    {{end}}
+  services:
+    {{range $i, $e := $json.services}}
+    {{$e.name}}:
+      loadBalancer:
+        servers:
+          - url: "{{$e.host}}"
+    {{end}}

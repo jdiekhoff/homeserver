@@ -2,3 +2,7 @@
 
 *.crt
 *.key
+*.csr
+
+*.csr.cnf
+*.ext

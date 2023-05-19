@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
+  pihole:
+    image: pihole/pihole:latest
+    network_mode: bridge
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+    environment:
+      TZ: 'US/East-Indiana'
+      WEBPASSWORD: ${PIHOLE_PASSWORD}
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    restart: unless-stopped
+  pi-alert:
+    image: jokobsk/pi.alert:latest
+    network_mode: host
+    environment:
+      - TZ=US/East-Indiana
+      - PORT=20211
+    volumes:
+      - pi-alert_config:/home/pi/pialert/config
+      - pi-alert_db:/home/pi/pialert/db
+      - ./etc-pihole/pihole-FTL.db:/etc/pihole/pihole-FTL.db:ro
+    depends_on:
+      pihole:
+        condition: service_started
+    restart: unless-stopped
+  portainer-agent:
+    image: portainer/agent:2.17.1
+    network_mode: bridge
+    ports:
+      - 9001:9001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    restart: unless-stopped
+  
+volumes:
+  pi-alert_config:
+  pi-alert_db:

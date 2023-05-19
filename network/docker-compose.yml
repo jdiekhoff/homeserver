@@ -25,7 +25,6 @@ services:
     volumes:
       - pi-alert_config:/home/pi/pialert/config
       - pi-alert_db:/home/pi/pialert/db
-      - ./etc-pihole/pihole-FTL.db:/etc/pihole/pihole-FTL.db:ro
     depends_on:
       pihole:
         condition: service_started

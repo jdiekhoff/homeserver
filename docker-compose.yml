@@ -12,6 +12,17 @@ services:
     labels:
       - traefik.http.services.portainer.loadbalancer.server.port=9000
     restart: unless-stopped
+  portainer-agent:
+    image: portainer/agent:2.17.1
+    network_mode: bridge
+    ports:
+      - 9001:9001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    labels:
+      - traefik.enabled=false
+    restart: unless-stopped
   speedtest:
     image: henrywhitaker3/speedtest-tracker
     network_mode: bridge
@@ -106,6 +117,57 @@ services:
     volumes:
       - ${ROOT_CA}:/usr/share/nginx/html/rootCA.pem:ro
     restart: unless-stopped
+  pyload:
+    image: mobilistics/pyload:latest
+    network_mode: bridge
+    ports:
+      - 8000:8000
+    environment:
+      - UID=1000
+      - GID=1000
+    volumes:
+      - pyload_volume:/opt/pyload/pyload-config
+      - /mnt/media/roms/Downloads:/opt/pyload/Downloads
+    labels:
+      - traefik.http.services.pyload.loadbalancer.server.port=8000
+    restart: unless-stopped
+  bookstack:
+    image: lscr.io/linuxserver/bookstack
+    network_mode: bridge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - APP_URL=https://bookstack.${HOST}
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=bookstack
+      - DB_PASS=${BOOKSTACK_DB_PASSWORD}
+      - DB_DATABASE=bookstackapp
+    volumes:
+      - /mnt/media/bookstack/config:/config
+    expose:
+      - 80
+    links:
+      - "bookstack_db:db"
+    restart: unless-stopped
+    depends_on:
+      - bookstack_db
+  bookstack_db:
+    image: lscr.io/linuxserver/mariadb
+    network_mode: bridge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ROOT_PASSWORD=${BOOKSTACK_DB_ROOT_PASSWORD}
+      - TZ=Etc/UTC
+      - MYSQL_DATABASE=bookstackapp
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=${BOOKSTACK_DB_PASSWORD}
+    volumes:
+      - /mnt/media/bookstack/mariadb/config:/config
+    labels:
+      - traefik.enable=false
+    restart: unless-stopped
   traefik:
     # The official v2 Traefik docker image
     image: traefik:v2.9
@@ -138,3 +200,5 @@ volumes:
     external: true
   heimdall-volume:
     external: true
+  jdownloader2_volume:
+  pyload_volume:

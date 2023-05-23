@@ -6,3 +6,5 @@
 
 *.csr.cnf
 *.ext
+
+*.DS_Store

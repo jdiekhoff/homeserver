@@ -30,10 +30,15 @@ services:
       - /mnt/media/gitea/data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "222:22"
+    expose:
+      - 22
+      - 3000
     labels:
       - traefik.http.services.gitea.loadbalancer.server.port=3000
+      - traefik.tcp.routers.gitea-ssh.entryPoints=gitea-ssh
+      - traefik.tcp.routers.gitea-ssh.service=gitea-ssh
+      - traefik.tcp.routers.gitea-ssh.rule=HostSNI(`*`)
+      - traefik.tcp.services.gitea-ssh.loadbalancer.server.port=22
     depends_on:
       - gitea-db
     links:

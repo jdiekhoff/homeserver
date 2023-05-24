@@ -170,7 +170,7 @@ services:
     restart: unless-stopped
   traefik:
     # The official v2 Traefik docker image
-    image: traefik:v2.9
+    image: traefik/traefik:experimental-master
     network_mode: host
     environment:
       - HOST=$HOST
@@ -182,6 +182,8 @@ services:
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
       - "--entryPoints.websecure.http.tls=true"
+      - "--entryPoints.websecure.asDefault=true"
+      - "--entryPoints.gitea-ssh.address=:222/tcp"
       # https://doc.traefik.io/traefik/master/providers/docker/#defaultrule
       - "--providers.docker.defaultRule=Host(`{{if index .Labels \"com.docker.compose.service\" }}{{ index .Labels \"com.docker.compose.service\" }}{{else}}{{ trimPrefix `/` .Name }}{{end}}.${HOST}`)"
       # docker labels don't seem to work correctly once you add dynamic config

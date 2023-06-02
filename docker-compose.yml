@@ -100,6 +100,8 @@ services:
     network_mode: bridge
     expose:
       - 80
+    labels:
+      - traefik.http.routers.weatherbuddy.entryPoints=web
     restart: unless-stopped
   dozzle:
     image: amir20/dozzle:latest
@@ -116,12 +118,14 @@ services:
       - 80
     volumes:
       - ${ROOT_CA}:/usr/share/nginx/html/rootCA.pem:ro
+    labels: 
+      - traefik.http.routers.ca-cert.entryPoints=web
     restart: unless-stopped
   pyload:
     image: mobilistics/pyload:latest
     network_mode: bridge
-    ports:
-      - 8000:8000
+    expose:
+      - 8000
     environment:
       - UID=1000
       - GID=1000
@@ -148,11 +152,11 @@ services:
     expose:
       - 80
     links:
-      - "bookstack_db:db"
+      - "bookstack-db:db"
     restart: unless-stopped
     depends_on:
-      - bookstack_db
-  bookstack_db:
+      - bookstack-db
+  bookstack-db:
     image: lscr.io/linuxserver/mariadb
     network_mode: bridge
     environment:
@@ -168,8 +172,31 @@ services:
     labels:
       - traefik.enable=false
     restart: unless-stopped
+  plex:
+    image: plexinc/pms-docker:1.32.2.7100-248a2daf0
+    network_mode: host
+    # ports:
+    #   - 32400:32400/tcp
+    #   - 3005:3005/tcp
+    #   - 8324:8324/tcp
+    #   - 32469:32469/tcp
+    #   - 1900:1900/udp
+    #   - 32410:32410/udp
+    #   - 32412:32412/udp
+    #   - 32413:32413/udp
+    #   - 32414:32414/udp
+    environment:
+      - TZ=America/Indiana/Indianapolis
+      - PLEX_CLAIM=${PLEX_CLAIM}
+      - ADVERTISE_IP=http://${ADVERTISE_IP}:32400/
+    volumes:
+      - /mnt/media/plex/database:/config
+      - /mnt/media/plex/transcode:/transcode
+      - /mnt/media/plex/media:/data
+    restart: unless-stopped
+    labels:
+      - traefik.http.services.plex.loadbalancer.server.port=32400
   traefik:
-    # The official v2 Traefik docker image
     image: traefik/traefik:experimental-master
     network_mode: host
     environment:

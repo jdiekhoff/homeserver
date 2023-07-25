@@ -10,8 +10,9 @@ services:
       - "53:53/udp"
       - "80:80/tcp"
     environment:
-      TZ: 'US/East-Indiana'
-      WEBPASSWORD: ${PIHOLE_PASSWORD}
+      - TZ=US/East-Indiana
+      - WEBPASSWORD=${PIHOLE_PASSWORD}
+      - WEB_GID=999
     volumes:
       - './etc-pihole:/etc/pihole'
       - './etc-dnsmasq.d:/etc/dnsmasq.d'

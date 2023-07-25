@@ -16,19 +16,6 @@ services:
       - './etc-pihole:/etc/pihole'
       - './etc-dnsmasq.d:/etc/dnsmasq.d'
     restart: unless-stopped
-  pi-alert:
-    image: jokobsk/pi.alert:latest
-    network_mode: host
-    environment:
-      - TZ=US/East-Indiana
-      - PORT=20211
-    volumes:
-      - pi-alert_config:/home/pi/pialert/config
-      - pi-alert_db:/home/pi/pialert/db
-    depends_on:
-      pihole:
-        condition: service_started
-    restart: unless-stopped
   portainer-agent:
     image: portainer/agent:2.17.1
     network_mode: bridge
@@ -38,7 +25,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/lib/docker/volumes:/var/lib/docker/volumes
     restart: unless-stopped
-  
-volumes:
-  pi-alert_config:
-  pi-alert_db:

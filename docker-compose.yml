@@ -93,7 +93,11 @@ services:
     devices:
       - /dev/sr0:/dev/sr0
     privileged: true
-    cpus: 0.75
+    deploy:
+      resources:
+        limits:
+          cpus: "9.0"
+          memory: "4096M"  
     restart: unless-stopped
   weatherbuddy:
     image: jdiggity/weatherbuddy:latest

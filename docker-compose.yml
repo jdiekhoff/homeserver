@@ -200,44 +200,6 @@ services:
     restart: unless-stopped
     labels:
       - traefik.http.services.plex.loadbalancer.server.port=32400
-  romm:
-    image: zurdi15/romm:1.8.4
-    network_mode: bridge
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - ROMM_DB_Driver=mariadb
-      - DB_HOST=db # Only needed if ROMM_DB_DRIVER=mariadb
-      - DB_PORT=3306 # Only needed if ROMM_DB_DRIVER=mariadb
-      - DB_USER=${ROMM_DB_USER} # Only needed if ROMM_DB_DRIVER=mariadb
-      - DB_NAME=romm # Only needed if ROMM_DB_DRIVER=mariadb. Can be optionally changed, and should match the MYSQL_DATABASE value in the mariadb container.
-      - DB_PASSWD=${ROMM_DB_PASSWORD} # Only needed if ROMM_DB_DRIVER=mariadb
-      - CLIENT_ID=${ROMM_TWITCH_CLIENTID}
-      - CLIENT_SECRET=${ROMM_TWITCH_CLIENTSECRET}
-      - STEAMGRIDDB_API_KEY=${ROMM_STEAMGRIDDB_API_KEY}
-    volumes:
-      - '/mnt/media/roms:/romm/library:ro'
-      - '/mnt/media/romm/resources:/romm/resources'
-      - '/mnt/media/romm/config.yml:/romm/config.yml'
-    links:
-      - "romm-db:db"
-    depends_on:
-      - romm-db
-    restart: unless-stopped
-  # Only needed if ROMM_DB_DRIVER=mariadb
-  romm-db:
-    image: mariadb:latest
-    network_mode: bridge
-    expose:
-      3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=${ROMM_DB_ROOTPASSWORD}
-      - MYSQL_DATABASE=romm
-      - MYSQL_USER=${ROMM_DB_USER}
-      - MYSQL_PASSWORD=${ROMM_DB_PASSWORD}
-    volumes:
-      - romm_mysql_data_volume:/var/lib/mysql # Can also be mounted locally if preferred
-    restart: "unless-stopped"
   emulatorjs:
     image: lscr.io/linuxserver/emulatorjs:latest
     network_mode: bridge
@@ -304,4 +266,3 @@ volumes:
     external: true
   jdownloader2_volume:
   pyload_volume:
-  romm_mysql_data_volume:

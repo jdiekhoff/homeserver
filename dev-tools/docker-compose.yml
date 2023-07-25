@@ -17,6 +17,10 @@ services:
       - traefik.tcp.routers.mssql.service=mssql
       - traefik.tcp.routers.mssql.rule=HostSNI(`*`)
       - traefik.tcp.services.mssql.loadbalancer.server.port=1433
+    deploy:
+      resources:
+        limits:
+          memory: "4000M"  
     restart: unless-stopped
   gitea:
     image: gitea/gitea:1.19.0

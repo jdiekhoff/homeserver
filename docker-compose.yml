@@ -57,12 +57,6 @@ services:
       - heimdall-volume:/config
       - ${ROOT_CA}:/usr/share/ca-certificates/rootCA.pem
     restart: unless-stopped
-  grafana:
-    image: grafana/grafana-enterprise:latest
-    network_mode: bridge
-    expose:
-      - 3000
-    restart: unless-stopped
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf:latest
     network_mode: bridge

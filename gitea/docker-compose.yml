@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  gitea:
+    image: gitea/gitea:1.19.0
+    networks:
+      - network
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=gitea-db:5432
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=${GITEA_USER}
+      - GITEA__database__PASSWD=${GITEA_PASSWORD}
+    volumes:
+      - /mnt/docker-data/gitea/data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    expose:
+      - 22
+      - 3000
+    labels:
+      - traefik.http.services.gitea.loadbalancer.server.port=3000
+      - traefik.tcp.routers.gitea-ssh.entryPoints=gitea-ssh
+      - traefik.tcp.routers.gitea-ssh.service=gitea-ssh
+      - traefik.tcp.routers.gitea-ssh.rule=HostSNI(`*`)
+      - traefik.tcp.services.gitea-ssh.loadbalancer.server.port=22
+    depends_on:
+      - gitea-db
+    restart: unless-stopped
+  gitea-db:
+    image: postgres:14
+    networks:
+      - network
+    environment:
+      - POSTGRES_USER=${GITEA_USER}
+      - POSTGRES_PASSWORD=${GITEA_PASSWORD}
+      - POSTGRES_DB=gitea
+    volumes:
+      - /mnt/docker-data/gitea/postgres/data:/var/lib/postgresql/data
+    labels:
+      - traefik.enable=false
+    restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge

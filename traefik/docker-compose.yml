@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  traefik:
+    image: traefik/traefik:experimental-master
+    network_mode: host
+    environment:
+      - HOST=$HOST
+      - CERT_NAME=$CERT_NAME
+      - JSON_SERVICES=$JSON_SERVICES
+    command:
+      - "--log.level=DEBUG"
+      - "--api.dashboard=true"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--entryPoints.websecure.http.tls=true"
+      - "--entryPoints.websecure.asDefault=true"
+      - "--entryPoints.gitea-ssh.address=:222/tcp"
+      - "--entryPoints.mssql.address=:1433"
+      # https://doc.traefik.io/traefik/master/providers/docker/#defaultrule
+      - "--providers.docker.defaultRule=Host(`{{if index .Labels \"com.docker.compose.service\" }}{{ index .Labels \"com.docker.compose.service\" }}{{else}}{{ trimPrefix `/` .Name }}{{end}}.${HOST}`)"
+      # docker labels don't seem to work correctly once you add dynamic config
+      - "--providers.file.directory=/conf"
+      - "--providers.file.watch=true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config:/conf:ro
+      - ../certs:/certs:ro
+    restart: unless-stopped

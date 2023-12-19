@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:2.5.6
+    networks:
+      - network
+    environment:
+      - TZ=Etc/UTC
+    volumes:
+      - heimdall_volume:/config
+      - ${ROOT_CA}:/usr/share/ca-certificates/rootCA.pem
+    labels:
+      - traefik.http.services.heimdall.loadbalancer.server.port=80
+    restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge
+
+volumes:
+  heimdall_volume:

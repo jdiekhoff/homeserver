@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  weatherbuddy:
+    image: jdiggity/weatherbuddy:latest
+    networks:
+      - network
+    labels:
+      - traefik.http.routers.weatherbuddy.entryPoints=web
+    restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge

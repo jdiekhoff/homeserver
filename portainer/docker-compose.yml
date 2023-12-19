@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:  
+  portainer:
+    image: portainer/portainer-ce:latest
+    networks:
+      - network
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - /mnt/docker-data/portainer:/data
+    labels:
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+    restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge

@@ -2,28 +2,27 @@ version: "3.7"
 services:
   mealie:
     image: hkotel/mealie:frontend-v1.0.0beta-5
-    network_mode: bridge
+    networks:
+      - network
     environment:
     # Set Frontend ENV Variables Here
-      - API_URL=http://api:9000 # 
+      - API_URL=http://mealie-api:9000 # 
     # ports:
     #   - "9925:3000" # 
-    links:
-      - "mealie-api:api"
     depends_on:
       - mealie-api
-    restart: unless-stopped
     volumes:
-      - /mnt/media/mealie/data:/app/data/ # 
+      - /mnt/docker-data/mealie/data:/app/data/ # 
+    restart: unless-stopped
+
   mealie-api:
     image: hkotel/mealie:api-v1.0.0beta-5
-    network_mode: bridge
+    networks:
+      - network
     deploy:
       resources:
         limits:
           memory: 1000M # 
-    volumes:
-      - /mnt/media/mealie/data:/app/data/
     environment:
     # Set Backend ENV Variables Here
       - ALLOW_SIGNUP=true
@@ -35,4 +34,10 @@ services:
       - BASE_URL=https://mealie.${HOST}
     labels:
       - traefik.enable=false
+    volumes:
+      - /mnt/docker-data/mealie/data:/app/data/
     restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge

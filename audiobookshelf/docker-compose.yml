@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    networks:
+      - network
+    volumes:
+      - /mnt/media/audiobooks:/audiobooks
+      - /mnt/media/podcasts:/podcasts
+      - /mnt/docker-data/audiobookshelf/config:/config
+      - /mnt/docker-data/audiobookshelf/metadata:/metadata
+    restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge

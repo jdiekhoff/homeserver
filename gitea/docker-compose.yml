@@ -17,9 +17,6 @@ services:
       - /mnt/docker-data/gitea/data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    expose:
-      - 22
-      - 3000
     labels:
       - traefik.http.services.gitea.loadbalancer.server.port=3000
       - traefik.tcp.routers.gitea-ssh.entryPoints=gitea-ssh

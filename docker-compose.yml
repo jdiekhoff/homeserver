@@ -11,28 +11,6 @@ services:
     volumes:
         - speedtest-volume:/config
     restart: unless-stopped
-  kavita:
-    image: kizaing/kavita:latest
-    network_mode: bridge
-    expose:
-      - 5000
-    environment:
-      - TZ=US/East-Indiana
-    volumes:
-      - /mnt/media/books:/manga
-      - /mnt/media/kavita:/kavita/config
-    restart: unless-stopped
-  audiobookshelf:
-    image: ghcr.io/advplyr/audiobookshelf:latest
-    network_mode: bridge
-    expose:
-      - 80
-    volumes:
-      - /mnt/media/audiobookshelf/audiobooks:/audiobooks
-      - /mnt/media/audiobookshelf/podcasts:/podcasts
-      - /mnt/media/audiobookshelf/config:/config
-      - /mnt/media/audiobookshelf/metadata:/metadata
-    restart: unless-stopped
   arm:
     image: automaticrippingmachine/automatic-ripping-machine:latest
     network_mode: bridge
@@ -72,43 +50,6 @@ services:
     labels:
       - traefik.http.services.pyload.loadbalancer.server.port=8000
     restart: unless-stopped
-  bookstack:
-    image: lscr.io/linuxserver/bookstack
-    network_mode: bridge
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - APP_URL=https://bookstack.${HOST}
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_USER=bookstack
-      - DB_PASS=${BOOKSTACK_DB_PASSWORD}
-      - DB_DATABASE=bookstackapp
-    volumes:
-      - /mnt/media/bookstack/config:/config
-    expose:
-      - 80
-    links:
-      - "bookstack-db:db"
-    restart: unless-stopped
-    depends_on:
-      - bookstack-db
-  bookstack-db:
-    image: lscr.io/linuxserver/mariadb
-    network_mode: bridge
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - MYSQL_ROOT_PASSWORD=${BOOKSTACK_DB_ROOT_PASSWORD}
-      - TZ=Etc/UTC
-      - MYSQL_DATABASE=bookstackapp
-      - MYSQL_USER=bookstack
-      - MYSQL_PASSWORD=${BOOKSTACK_DB_PASSWORD}
-    volumes:
-      - /mnt/media/bookstack/mariadb/config:/config
-    labels:
-      - traefik.enable=false
-    restart: unless-stopped
   plex:
     image: plexinc/pms-docker:1.32.2.7100-248a2daf0
     network_mode: host
@@ -133,36 +74,6 @@ services:
     restart: unless-stopped
     labels:
       - traefik.http.services.plex.loadbalancer.server.port=32400
-  emulatorjs:
-    image: lscr.io/linuxserver/emulatorjs:latest
-    network_mode: bridge
-    expose:
-      - 80
-      - 3000
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - /mnt/media/emulatorjs/config:/config
-      - /mnt/media/emulatorjs/data:/data
-      - /mnt/media/roms/roms/nes:/data/nes/roms
-      - /mnt/media/roms/roms/snes:/data/snes/roms
-      - /mnt/media/roms/roms/gba:/data/gba/roms
-      - /mnt/media/roms/roms/gb:/data/gb/roms
-      - /mnt/media/roms/roms/gbc:/data/gbc/roms
-      - /mnt/media/roms/roms/n64:/data/n64/roms
-      - /mnt/media/roms/roms/nds:/data/nds/roms
-      - /mnt/media/roms/roms/psx:/data/psx/roms
-    labels:
-      - traefik.http.routers.emulatorjs.entryPoints=websecure
-      - traefik.http.routers.emulatorjs.service=emulatorjs
-      - traefik.http.services.emulatorjs.loadbalancer.server.port=80
-      - traefik.http.routers.admin-emulatorjs.entryPoints=websecure
-      - traefik.http.routers.admin-emulatorjs.rule=Host(`admin-emulatorjs.${HOST}`)
-      - traefik.http.routers.admin-emulatorjs.service=admin-emulatorjs
-      - traefik.http.services.admin-emulatorjs.loadbalancer.server.port=3000
-    restart: unless-stopped
   traefik:
     image: traefik/traefik:experimental-master
     network_mode: host
@@ -193,5 +104,4 @@ services:
 volumes:
   speedtest-volume:
     external: true
-  jdownloader2_volume:
   pyload_volume:

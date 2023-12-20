@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  emulatorjs:
+    image: lscr.io/linuxserver/emulatorjs:latest
+    networks:
+      - network
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /mnt/docker-data/emulatorjs/config:/config
+      - /mnt/docker-data/emulatorjs/data:/data
+      - /mnt/media/roms/roms/nes:/data/nes/roms
+      - /mnt/media/roms/roms/snes:/data/snes/roms
+      - /mnt/media/roms/roms/gba:/data/gba/roms
+      - /mnt/media/roms/roms/gb:/data/gb/roms
+      - /mnt/media/roms/roms/gbc:/data/gbc/roms
+      - /mnt/media/roms/roms/n64:/data/n64/roms
+      - /mnt/media/roms/roms/nds:/data/nds/roms
+      - /mnt/media/roms/roms/psx:/data/psx/roms
+    labels:
+      - traefik.http.routers.emulatorjs.entryPoints=websecure
+      - traefik.http.routers.emulatorjs.service=emulatorjs
+      - traefik.http.services.emulatorjs.loadbalancer.server.port=80
+      - traefik.http.routers.admin-emulatorjs.entryPoints=websecure
+      - traefik.http.routers.admin-emulatorjs.rule=Host(`admin-emulatorjs.${HOST}`)
+      - traefik.http.routers.admin-emulatorjs.service=admin-emulatorjs
+      - traefik.http.services.admin-emulatorjs.loadbalancer.server.port=3000
+    restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge

@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  lldap:
+    image: lldap/lldap:stable
+    networks:
+      - network
+    # ports:
+      # For LDAP
+      # - "3890:3890"
+      # For LDAPS (LDAP Over SSL), enable port if LLDAP_LDAPS_OPTIONS__ENABLED set true, look env below
+      #- "6360:6360"
+      # For the web front-end
+      # - "17170:17170"
+    volumes:
+      - "/mnt/docker-data/lldap:/data"
+      # Alternatively, you can mount a local folder
+      # - "./lldap_data:/data"
+    environment:
+      - UID=1000
+      - GID=1000
+      - TZ=Etc/UTC
+      - LLDAP_JWT_SECRET=${LLDAP_JWT_SECRET}
+      - LLDAP_LDAP_USER_PASS=${LLDAP_LDAP_USER_PASS}
+      - LLDAP_LDAP_BASE_DN=dc=home,dc=lab
+      # If using LDAPS, set enabled true and configure cert and key path
+      # - LLDAP_LDAPS_OPTIONS__ENABLED=true
+      # - LLDAP_LDAPS_OPTIONS__CERT_FILE=/path/to/certfile.crt
+      # - LLDAP_LDAPS_OPTIONS__KEY_FILE=/path/to/keyfile.key
+      # You can also set a different database:
+      # - LLDAP_DATABASE_URL=mysql://mysql-user:password@mysql-server/my-database
+      - LLDAP_DATABASE_URL=postgres://${LLDAP_DB_USER}:${LLDAP_DB_PASSWORD}@lldap-db/lldap
+    labels:
+      - traefik.http.services.lldap.loadbalancer.server.port=17170
+      - traefik.tcp.routers.lldap-ldap.entryPoints=lldap-ldap
+      - traefik.tcp.routers.lldap-ldap.service=lldap-ldap
+      - traefik.tcp.routers.lldap-ldap.rule=HostSNI(`*`)
+      - traefik.tcp.services.lldap-ldap.loadbalancer.server.port=3890
+    depends_on:
+      - lldap-db
+    restart: unless-stopped
+  lldap-db:
+    image: postgres:14
+    networks:
+      - network
+    environment:
+      - POSTGRES_USER=${LLDAP_DB_USER}
+      - POSTGRES_PASSWORD=${LLDAP_DB_PASSWORD}
+      - POSTGRES_DB=lldap
+    volumes:
+      - /mnt/docker-data/lldap/postgres/data:/var/lib/postgresql/data
+    labels:
+      - traefik.enable=false
+    restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge

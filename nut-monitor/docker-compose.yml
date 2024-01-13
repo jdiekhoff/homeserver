@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  nut:
+    image: teknologist/webnut
+    networks:
+      - network
+    environment:
+      - UPS_HOST=${UPS_HOST}
+      - UPS_PORT=3493
+      - UPS_USER=${UPS_USER}
+      - UPS_PASSWORD=${UPS_PASSWORD}
+    restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge

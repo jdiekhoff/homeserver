@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    # Environment settings are defined here https://github.com/openzipkin/zipkin/blob/master/zipkin-server/README.md#environment-variables
+    environment:
+      # We will lose data on restart, but I'm okay with that.
+      - STORAGE_TYPE=mem
+      # Point the zipkin at the storage backend
+      # - MYSQL_HOST=mysql
+      # Uncomment to enable scribe
+      # - SCRIBE_ENABLED=true
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to enable debug logging
+      # - JAVA_OPTS=-Dlogging.level.zipkin2=DEBUG
+      # ports:
+      # Port used for the Zipkin UI and HTTP Api
+      # - 9411:9411
+      # Uncomment if you set SCRIBE_ENABLED=true
+      # - 9410:9410
+    restart: unless-stopped
+    labels:
+      - traefik.http.routers.zipkin.entryPoints=websecure,web
+      - traefik.http.services.zipkin.loadbalancer.server.port=9411
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 1G
+    networks:
+      - network
+
+networks:
+  network:

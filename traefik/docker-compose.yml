@@ -9,7 +9,9 @@ services:
       - CERT_NAME=$CERT_NAME
       - JSON_SERVICES=$JSON_SERVICES
     command:
-      - "--log.level=DEBUG"
+      - "--log.level=WARN"
+      - "--tracing.zipkin.httpEndpoint=http://zipkin.${HOST}/api/v2/spans"
+      - "--tracing.zipkin.sampleRate=0.1"
       - "--api.dashboard=true"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"

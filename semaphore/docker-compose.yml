@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  ui:
+    # ports:
+    #   - 3000:3000
+    user: "${UID}:${GID}"
+    image: jdiekhoff/semaphore:v2.9.45_CA_CERT
+    build: .
+    environment:
+      SEMAPHORE_DB_DIALECT: postgres
+      SEMAPHORE_DB_USER: ${SEMAPHORE_DB_USER}
+      SEMAPHORE_DB_PASS: ${SEMAPHORE_DB_PASSWORD}
+      SEMAPHORE_DB_HOST: postgres
+      SEMAPHORE_DB_PORT: 5432
+      SEMAPHORE_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SEMAPHORE_ADMIN_NAME: admin
+      SEMAPHORE_ADMIN_EMAIL: admin@localhost
+      SEMAPHORE_ADMIN: admin
+      SEMAPHORE_ACCESS_KEY_ENCRYPTION: ${SEMAPHORE_ACCESS_KEY_ENCRYPTION}
+      ANSIBLE_HOST_KEY_CHECKING: False # https://github.com/ansible-semaphore/semaphore/issues/675
+      TZ: Etc/UTC
+    labels:
+      - traefik.http.routers.semaphore.rule=Host(`semaphore.${HOST}`)
+      - traefik.http.services.semaphore.loadbalancer.server.port=3000
+    volumes:
+      - ${SEMAPHORE_CONFIG_DIR}:/etc/semaphore # config.json location
+    networks:
+      - network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:14
+    hostname: postgres
+    volumes:
+      - ${POSTGRES_DATA_DIR}:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${SEMAPHORE_DB_USER}
+      POSTGRES_PASSWORD: ${SEMAPHORE_DB_PASSWORD}
+      POSTGRES_DB: semaphore
+    labels:
+      - traefik.enable=false
+    networks:
+      - network
+    restart: unless-stopped
+
+networks:
+  network:

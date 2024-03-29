@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  seq:
+    image: datalust/seq:latest
+    # ports:
+    #   - 8888:80
+    #   - 5341:5341
+    environment:
+      - ACCEPT_EULA=Y
+    volumes:
+      - ${SEQ_DATA_DIR}:/data
+    restart: unless-stopped
+    labels:
+      - traefik.http.services.seq.loadbalancer.server.port=80
+      - traefik.http.routers.seq.entryPoints=websecure
+      - traefik.http.routers.seq.service=seq
+      - traefik.http.services.seq-ingest.loadbalancer.server.port=5341
+      - traefik.http.routers.seq-ingest.entryPoints=web
+      - traefik.http.routers.seq-ingest.service=seq-ingest
+      - traefik.http.routers.seq-ingest.rule=Host(`seq-ingest.${HOST}`)
+    networks:
+      - network
+
+networks:
+  network:

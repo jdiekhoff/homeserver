@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   gitea:
-    image: gitea/gitea:1.19.0
+    image: gitea/gitea:1.21.7
     networks:
       - network
     environment:
@@ -38,6 +38,22 @@ services:
       - /mnt/docker-data/gitea/postgres/data:/var/lib/postgresql/data
     labels:
       - traefik.enable=false
+    restart: unless-stopped
+  runner:
+    image: gitea/act_runner:0.2.8
+    environment:
+      CONFIG_FILE: /config.yaml
+      GITEA_INSTANCE_URL: ${INSTANCE_URL}
+      GITEA_RUNNER_REGISTRATION_TOKEN: ${REGISTRATION_TOKEN}
+      GITEA_RUNNER_NAME: ${RUNNER_NAME}
+    networks:
+      - network
+    volumes:
+      - ./config/gitea-runner/config.yaml:/config.yaml
+      - /mnt/docker-data/gitea/gitea-runner/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - gitea
     restart: unless-stopped
 
 networks:

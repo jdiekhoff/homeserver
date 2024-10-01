@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   gitea:
-    image: gitea/gitea:1.21.7
+    image: gitea/gitea:1.21.11
     networks:
       - network
     environment:
@@ -52,6 +52,7 @@ services:
       - ./config/gitea-runner/config.yaml:/config.yaml
       - /mnt/docker-data/gitea/gitea-runner/data:/data
       - /var/run/docker.sock:/var/run/docker.sock
+      - ../certs/rootCA.crt:/etc/ssl/certs/rootCA.crt:ro
     depends_on:
       - gitea
     restart: unless-stopped

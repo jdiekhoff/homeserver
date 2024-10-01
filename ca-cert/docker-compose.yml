@@ -1,13 +1,14 @@
 version: '3.9'
 
-services:  
+services:
   ca-cert:
     image: nginx:latest
     networks:
       - network
     volumes:
-      - ${ROOT_CA}:/usr/share/nginx/html/rootCA.pem:ro
-    labels: 
+      - ${ROOT_CA_PEM}:/usr/share/nginx/html/rootCA.pem:ro
+      - ${ROOT_CA_CRT}:/usr/share/nginx/html/rootCA.crt:ro
+    labels:
       - traefik.http.routers.ca-cert.entryPoints=web
     restart: unless-stopped
 

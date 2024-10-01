@@ -1,0 +1,11 @@
+services:
+  meshcommander:
+    image: vga101/meshcommander:latest
+    # ports:
+    #   - 3000:3000
+    restart: unless-stopped
+    networks:
+      - network
+
+networks:
+  network:

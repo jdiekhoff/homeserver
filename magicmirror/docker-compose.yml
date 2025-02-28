@@ -1,0 +1,16 @@
+services:
+  magicmirror:
+    image: karsten13/magicmirror:latest
+    restart: unless-stopped
+    networks:
+      - network
+    volumes:
+      - /mnt/docker-data/magicmirror/config:/opt/magic_mirror/config
+      - /mnt/docker-data/magicmirror/modules:/opt/magic_mirror/modules
+      - /mnt/docker-data/magicmirror/css:/opt/magic_mirror/css
+    # ports
+    #   - 8080:8080
+
+networks:
+  network:
+    driver: bridge

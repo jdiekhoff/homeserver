@@ -7,7 +7,7 @@ services:
     # ports:
     # - "5000:5000"
     volumes:
-      - /mnt/data/docker-data/borkerhub/registry:/var/lib/registry
+      - /mnt/docker-data/borkerhub/registry:/var/lib/registry
     labels:
       - traefik.http.services.conreg.loadbalancer.server.port=5000
       - traefik.http.routers.conreg.service=conreg

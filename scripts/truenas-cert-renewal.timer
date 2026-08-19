@@ -1,0 +1,15 @@
+[Unit]
+Description=TrueNAS Certificate Renewal Timer
+Requires=truenas-cert-renewal.service
+
+[Timer]
+# Run daily at 2 AM
+OnCalendar=daily
+OnCalendar=02:00
+# Run 15 minutes after boot (in case system was down)
+OnBootSec=15min
+# Add some randomization to avoid all systems hitting at once
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target

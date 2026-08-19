@@ -1,0 +1,12 @@
+[Unit]
+Description=TrueNAS Certificate Renewal Service (smallstep)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+EnvironmentFile=/etc/truenas-cert-renewal/env.conf
+ExecStart=/usr/local/bin/truenas-cert-renewal-stepcli.sh ${DOMAIN} ${TRUENAS_HOST} ${TRUENAS_API_KEY} ${CA_URL} ${ROOT_CA_PATH} ${CERT_NAME}
+StandardOutput=journal
+StandardError=journal

@@ -1,8 +1,6 @@
-version: '3.9'
-
 services:
   plex:
-    image: plexinc/pms-docker:1.32.2.7100-248a2daf0
+    image: plexinc/pms-docker:1.41.8.9834-071366d65
     network_mode: host
     # ports:
     #   - 32400:32400/tcp

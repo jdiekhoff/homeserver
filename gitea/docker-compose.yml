@@ -1,8 +1,6 @@
-version: '3.9'
-
 services:
   gitea:
-    image: gitea/gitea:1.21.11
+    image: gitea/gitea:1.25
     networks:
       - network
     environment:
@@ -40,7 +38,7 @@ services:
       - traefik.enable=false
     restart: unless-stopped
   runner:
-    image: gitea/act_runner:0.2.8
+    image: gitea/act_runner:0.2.13
     environment:
       CONFIG_FILE: /config.yaml
       GITEA_INSTANCE_URL: ${INSTANCE_URL}
@@ -50,7 +48,7 @@ services:
       - network
     volumes:
       - ./config/gitea-runner/config.yaml:/config.yaml
-      - /mnt/docker-data/gitea/gitea-runner/data:/data
+      - /mnt/docker-data-hot/gitea-runner/data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - ../certs/rootCA.crt:/etc/ssl/certs/rootCA.crt:ro
     depends_on:

@@ -61,7 +61,7 @@ container:
   # Whether to use privileged mode or not when launching task containers (privileged mode is required for Docker-in-Docker).
   privileged: false
   # And other options to be used when the container is started (eg, --add-host=my.gitea.url:host-gateway).
-  options:
+  options: "-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt"
   # The parent directory of a job's working directory.
   # NOTE: There is no need to add the first '/' of the path as act_runner will add it automatically. 
   # If the path starts with '/', the '/' will be trimmed.
@@ -77,7 +77,8 @@ container:
   # If you want to allow any volume, please use the following configuration:
   # valid_volumes:
   #   - '**'
-  valid_volumes: []
+  valid_volumes:
+    - "/etc/ssl/certs/ca-certificates.crt"
   # overrides the docker client host with the specified one.
   # If it's empty, act_runner will find an available docker host automatically.
   # If it's "-", act_runner will find an available docker host automatically, but the docker host won't be mounted to the job containers and service containers.

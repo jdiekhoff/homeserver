@@ -18,6 +18,12 @@ Repo for configuration of home server
 | Linux | [Stackoverflow](https://superuser.com/a/719047/197707) |
 | Heimdall | [Github](https://github.com/linuxserver/Heimdall#self-signed-certificates-and-local-cas) |
 
+## TrueNAS Scale Certificate Renewal
+
+Automated certificate renewal for TrueNAS Scale using smallstep ACME server.
+
+See [scripts/README.md](scripts/README.md) for detailed setup instructions.
+
 ## Traefik custom JSON
 
 To help with using Traefik with other HTTP services not in docker, I've updated the dynamic file provider to read a JSON list instead of repeating myself in YAML. You must set a variable in your .env file as `JSON_SERVICES` that is an escaped single line JSON string. Is this unnecessary and overcomplicated? Yes, but I wanted to test out templating in dynamic config with Traefik.

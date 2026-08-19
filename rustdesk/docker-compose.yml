@@ -1,0 +1,62 @@
+services:
+  hbbs:
+    container_name: hbbs
+    image: rustdesk/rustdesk-server:latest
+    command: hbbs
+    networks:
+      - network
+    volumes:
+      - /mnt/docker-data/rustdesk:/root
+    expose:
+      - 21115
+      - 21116
+      - 21118
+    labels:
+      - traefik.tcp.routers.rustdesk-nat.entryPoints=rustdesk-nat
+      - traefik.tcp.routers.rustdesk-nat.service=rustdesk-nat
+      - traefik.tcp.routers.rustdesk-nat.rule=HostSNI(`*`)
+      - traefik.tcp.services.rustdesk-nat.loadbalancer.server.port=21115
+
+      - traefik.tcp.routers.rustdesk-id.entryPoints=rustdesk-id-tcp
+      - traefik.tcp.routers.rustdesk-id.service=rustdesk-id
+      - traefik.tcp.routers.rustdesk-id.rule=HostSNI(`*`)
+      - traefik.tcp.services.rustdesk-id.loadbalancer.server.port=21116
+
+      - traefik.udp.routers.rustdesk-id.entryPoints=rustdesk-id-udp
+      - traefik.udp.routers.rustdesk-id.service=rustdesk-id
+      - traefik.udp.services.rustdesk-id.loadbalancer.server.port=21116
+
+      - traefik.tcp.routers.rustdesk-web1.entryPoints=rustdesk-web1
+      - traefik.tcp.routers.rustdesk-web1.service=rustdesk-web1
+      - traefik.tcp.routers.rustdesk-web1.rule=HostSNI(`*`)
+      - traefik.tcp.services.rustdesk-web1.loadbalancer.server.port=21118
+    depends_on:
+      - hbbr
+    restart: unless-stopped
+
+  hbbr:
+    container_name: hbbr
+    image: rustdesk/rustdesk-server:latest
+    command: hbbr
+    networks:
+      - network
+    volumes:
+      - /mnt/docker-data/rustdesk:/root
+    expose:
+      - 21117
+      - 21119
+    labels:
+      - traefik.tcp.routers.rustdesk-relay.entryPoints=rustdesk-relay
+      - traefik.tcp.routers.rustdesk-relay.service=rustdesk-relay
+      - traefik.tcp.routers.rustdesk-relay.rule=HostSNI(`*`)
+      - traefik.tcp.services.rustdesk-relay.loadbalancer.server.port=21117
+
+      - traefik.tcp.routers.rustdesk-web2.entryPoints=rustdesk-web2
+      - traefik.tcp.routers.rustdesk-web2.service=rustdesk-web2
+      - traefik.tcp.routers.rustdesk-web2.rule=HostSNI(`*`)
+      - traefik.tcp.services.rustdesk-web2.loadbalancer.server.port=21119
+    restart: unless-stopped
+
+networks:
+  network:
+    driver: bridge

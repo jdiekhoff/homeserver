@@ -15,10 +15,11 @@ http:
         users:
           - "admin:$2y$05$0ClyV/pLw0RulnLnb6KvceR9h9TKqLuZmzv4nYAOHL2x/dW97hy9K"
 
+# This is the old config that served up a wildcard *.{HOST} certificate. Not needed with ACME.
 ## TLS certs
-tls:
-  stores:
-    default:
-      defaultCertificate:
-        certFile: /certs/{{env "CERT_NAME"}}.crt
-        keyFile: /certs/{{env "CERT_NAME"}}.key
+# tls:
+#   stores:
+#     default:
+#       defaultCertificate:
+#         certFile: /certs/{{env "CERT_NAME"}}.crt
+#         keyFile: /certs/{{env "CERT_NAME"}}.key

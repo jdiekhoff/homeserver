@@ -9,7 +9,8 @@ http:
     websecure-{{$e.name}}:
       rule: Host(`{{$e.name}}.{{env "HOST"}}`)
       entrypoints: websecure
-      tls: true
+      tls:
+        certResolver: borktech
       service: {{$e.name}}  
     {{else}}
     {{$e.name}}:

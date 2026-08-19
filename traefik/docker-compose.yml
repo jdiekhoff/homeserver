@@ -1,33 +1,48 @@
-version: '3.9'
-
 services:
   traefik:
-    image: traefik/traefik:experimental-master
+    # image: traefik/traefik:experimental-master
+    image: traefik-borktech:v3.6.15
+    # image: traefik:v3.6.15
     network_mode: host
     environment:
       - HOST=$HOST
       - CERT_NAME=$CERT_NAME
       - JSON_SERVICES=$JSON_SERVICES
     command:
-      - "--log.level=WARN"
-      - "--tracing.zipkin.httpEndpoint=http://zipkin.${HOST}/api/v2/spans"
-      - "--tracing.zipkin.sampleRate=0.1"
+      - "--log.level=DEBUG"
       - "--api.dashboard=true"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
       # - "--entryPoints.websecure.forwardedHeaders.trustedIPs=192.168.4.0/24"
       - "--entryPoints.websecure.http.tls=true"
+      - "--entryPoints.websecure.http.tls.certResolver=borktech"
       - "--entryPoints.websecure.asDefault=true"
       - "--entryPoints.gitea-ssh.address=:222/tcp"
       - "--entryPoints.lldap-ldap.address=:3890/tcp"
       - "--entryPoints.mssql.address=:1433"
+      - "--entryPoints.syncthing-ft-tcp.address=:22000/tcp"
+      - "--entryPoints.syncthing-ft-udp.address=:22000/udp"
+      - "--entryPoints.syncthing-ft-tcp.address=:22000/tcp"
+      - "--entryPoints.syncthing-ft-udp.address=:22000/udp"
+      - "--entryPoints.rustdesk-nat.address=:21115/tcp"
+      - "--entryPoints.rustdesk-id-tcp.address=:21116/tcp"
+      - "--entryPoints.rustdesk-id-udp.address=:21116/udp"
+      - "--entryPoints.rustdesk-relay.address=:21117/tcp"
+      - "--entryPoints.rustdesk-web1.address=:21118/tcp"
+      - "--entryPoints.rustdesk-web2.address=:21119/tcp"
       # https://doc.traefik.io/traefik/master/providers/docker/#defaultrule
       - "--providers.docker.defaultRule=Host(`{{if index .Labels \"com.docker.compose.service\" }}{{ index .Labels \"com.docker.compose.service\" }}{{else}}{{ trimPrefix `/` .Name }}{{end}}.${HOST}`)"
       # docker labels don't seem to work correctly once you add dynamic config
       - "--providers.file.directory=/conf"
       - "--providers.file.watch=true"
+      # ACME configuration (won't affect existing certs)
+      - "--certificatesresolvers.borktech.acme.email=admin@home.lab"
+      - "--certificatesresolvers.borktech.acme.storage=/acme/acme.json"
+      - "--certificatesresolvers.borktech.acme.caserver=https://ca.home.lab/acme/acme/directory"
+      - "--certificatesresolvers.borktech.acme.httpchallenge.entrypoint=web"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config:/conf:ro
       - ../certs:/certs:ro
+      - ./acme:/acme
     restart: unless-stopped

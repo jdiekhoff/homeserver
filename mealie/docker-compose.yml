@@ -1,39 +1,22 @@
-version: "3.7"
 services:
+  # Single image since v1.0 (frontend + API). Traefik routes via the docker
+  # provider defaultRule: service name "mealie" -> mealie.${HOST}, port 9000.
   mealie:
-    image: hkotel/mealie:frontend-v1.0.0beta-5
-    networks:
-      - network
-    environment:
-    # Set Frontend ENV Variables Here
-      - API_URL=http://mealie-api:9000 # 
-    # ports:
-    #   - "9925:3000" # 
-    depends_on:
-      - mealie-api
-    volumes:
-      - /mnt/docker-data/mealie/data:/app/data/ # 
-    restart: unless-stopped
-
-  mealie-api:
-    image: hkotel/mealie:api-v1.0.0beta-5
+    image: ghcr.io/mealie-recipes/mealie:v3.28.0
     networks:
       - network
     deploy:
       resources:
         limits:
-          memory: 1000M # 
+          memory: 1000M
     environment:
-    # Set Backend ENV Variables Here
-      - ALLOW_SIGNUP=true
+      - ALLOW_SIGNUP=false
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=America/Indiana/Indianapolis
       - MAX_WORKERS=1
       - WEB_CONCURRENCY=1
       - BASE_URL=https://mealie.${HOST}
-    labels:
-      - traefik.enable=false
     volumes:
       - /mnt/docker-data/mealie/data:/app/data/
     restart: unless-stopped

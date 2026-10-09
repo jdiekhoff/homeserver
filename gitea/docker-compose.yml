@@ -1,6 +1,6 @@
 services:
   gitea:
-    image: gitea/gitea:1.25
+    image: gitea/gitea:28.1.0
     networks:
       - network
     environment:
@@ -11,6 +11,8 @@ services:
       - GITEA__database__NAME=gitea
       - GITEA__database__USER=${GITEA_USER}
       - GITEA__database__PASSWD=${GITEA_PASSWORD}
+      - GITEA__actions__RUN_RETENTION_DAYS=90
+      - GITEA__service__DISABLE_REGISTRATION=true
     volumes:
       - /mnt/docker-data/gitea/data:/data
       - /etc/timezone:/etc/timezone:ro
@@ -25,7 +27,7 @@ services:
       - gitea-db
     restart: unless-stopped
   gitea-db:
-    image: postgres:14
+    image: postgres:17.11
     networks:
       - network
     environment:
@@ -33,12 +35,12 @@ services:
       - POSTGRES_PASSWORD=${GITEA_PASSWORD}
       - POSTGRES_DB=gitea
     volumes:
-      - /mnt/docker-data/gitea/postgres/data:/var/lib/postgresql/data
+      - /mnt/docker-data/gitea/postgres17/data:/var/lib/postgresql/data
     labels:
       - traefik.enable=false
     restart: unless-stopped
   runner:
-    image: gitea/act_runner:0.2.13
+    image: gitea/runner:4.1.0
     environment:
       CONFIG_FILE: /config.yaml
       GITEA_INSTANCE_URL: ${INSTANCE_URL}

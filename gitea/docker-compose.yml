@@ -15,7 +15,6 @@ services:
       - GITEA__service__DISABLE_REGISTRATION=true
     volumes:
       - /mnt/docker-data/gitea/data:/data
-      - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     labels:
       - traefik.http.services.gitea.loadbalancer.server.port=3000

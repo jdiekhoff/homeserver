@@ -18,7 +18,6 @@ services:
       - "--entryPoints.websecure.http.tls.certResolver=borktech"
       - "--entryPoints.websecure.asDefault=true"
       - "--entryPoints.gitea-ssh.address=:222/tcp"
-      - "--entryPoints.lldap-ldap.address=:3890/tcp"
       - "--entryPoints.mssql.address=:1433"
       - "--entryPoints.syncthing-ft-tcp.address=:22000/tcp"
       - "--entryPoints.syncthing-ft-udp.address=:22000/udp"

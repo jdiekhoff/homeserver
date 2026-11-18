@@ -14,6 +14,9 @@ services:
     #   - 32414:32414/udp
     environment:
       - TZ=America/Indiana/Indianapolis
+      # Plex reaches /mnt/media/videos through the media group (NFSv4 ACL on TrueNAS), not file ownership
+      - PLEX_UID=1000
+      - PLEX_GID=3004
       - PLEX_CLAIM=${PLEX_CLAIM}
       - ADVERTISE_IP=http://${ADVERTISE_IP}:32400/
     volumes:

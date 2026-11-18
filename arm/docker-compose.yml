@@ -2,6 +2,7 @@ services:
   arm:
     # image: arm-quicksync:latest
     image: arm-makemkv-fix:latest
+    build: .
     network_mode: bridge
     ports:
       - 8080:8080

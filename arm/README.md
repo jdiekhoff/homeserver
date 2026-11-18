@@ -14,10 +14,13 @@ ARM sorts output into `movies/`, `tv/`, `unidentified/` under review.
 
 ## NFS mount
 
-TrueNAS export (share #23): `/mnt/Default/videos/review`, host 192.168.4.219 only, mapall to TrueNAS `jdiekhoff`
-(uid 3000). ARM's uid 1002 never reaches the NAS; rips land as `3000:3000 664`.
-`review/` itself is owned by uid 1000 (pd-media-01's jdiekhoff, no TrueNAS user), so it's `chmod 777`
-(same as `videos/`) to let uid 3000 create folders in it.
+TrueNAS export (share #23): `/mnt/Default/videos/review`, host 192.168.4.219 only, mapall `jdiekhoff:media`.
+ARM's uid 1002 never reaches the NAS; rips land owned by uid 3000 (TrueNAS `jdiekhoff`).
+
+Access comes from the NFSv4 ACL on the `videos` dataset (inherited, set recursively once):
+`owner@` full, `group@` modify, `GROUP media (3004)` modify, `USER 3000` modify, `everyone@` read.
+The `USER 3000` entry is required: mapall squashes supplementary groups, and ZFS only honors
+ACL group entries via supplementary groups, so `media` as the mapped primary group grants nothing.
 
 `/etc/fstab` on the VM:
 

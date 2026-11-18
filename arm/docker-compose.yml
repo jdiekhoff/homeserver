@@ -1,0 +1,32 @@
+services:
+  arm:
+    # image: arm-quicksync:latest
+    image: arm-makemkv-fix:latest
+    network_mode: bridge
+    ports:
+      - 8080:8080
+    # expose:
+    #  - 8080
+    environment:
+      - ARM_UID=${ARM_UID}
+      - ARM_GID=${ARM_GID}
+    #  - MAKEMKV_PERMA_KEY=${MAKEMKV_PERMA_KEY}
+    volumes:
+      - /mnt/media/arm:/home/arm
+      - /mnt/media/arm/logs:/home/arm/logs
+      - /mnt/media/arm/media:/home/arm/media
+      - /mnt/media/arm/config:/etc/arm/config
+      - /mnt/media/arm/db:/home/arm/db
+      # Finished rips land straight in the NAS review folder (NFS, see arm/README.md)
+      - /mnt/review:/home/arm/media/completed
+    devices:
+      - /dev/sr0:/dev/sr0
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri/card0:/dev/dri/card0
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: "8192M"  
+    restart: unless-stopped

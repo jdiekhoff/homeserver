@@ -11,31 +11,6 @@ services:
     volumes:
         - speedtest-volume:/config
     restart: unless-stopped
-  arm:
-    image: automaticrippingmachine/automatic-ripping-machine:latest
-    network_mode: bridge
-    expose:
-      - 8080
-    environment:
-      - ARM_UID=${ARM_UID}
-      - ARM_GID=${ARM_GID}
-      - MAKEMKV_APP_KEY=${MAKEMKV_APP_KEY}
-    volumes:
-      - /mnt/media/arm:/home/arm
-      - /mnt/media/arm/Music:/home/arm/Music
-      - /mnt/media/arm/logs:/home/arm/logs
-      - /mnt/media/arm/media:/home/arm/media
-      - /mnt/media/arm/config:/etc/arm/config
-      - /mnt/media/arm/db:/home/arm/db
-    devices:
-      - /dev/sr0:/dev/sr0
-    privileged: true
-    deploy:
-      resources:
-        limits:
-          cpus: "9.0"
-          memory: "4096M"  
-    restart: unless-stopped
   pyload:
     image: mobilistics/pyload:latest
     network_mode: bridge

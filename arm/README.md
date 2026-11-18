@@ -20,8 +20,12 @@ TrueNAS export: `/mnt/Default/videos/review`, host 192.168.4.219 only, mapall to
 `/etc/fstab` on the VM:
 
 ```
-192.168.4.93:/mnt/Default/videos/review  /mnt/review  nfs4  hard,_netdev,nofail,x-systemd.automount  0 0
+192.168.4.93:/mnt/Default/videos/review  /mnt/review  nfs4  hard,_netdev,nofail  0 0
 ```
+
+Guard against Docker starting before the mount (ARM would silently write to local disk):
+- `/mnt/review` is `chattr +i` while unmounted, so writes fail loudly instead.
+- Docker drop-in `/etc/systemd/system/docker.service.d/wait-nfs.conf`: `[Unit]` `After=remote-fs.target`.
 
 Notes:
 - The move to completed is a network copy, so the final file appears in review while it's being written.

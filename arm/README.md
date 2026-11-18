@@ -14,8 +14,10 @@ ARM sorts output into `movies/`, `tv/`, `unidentified/` under review.
 
 ## NFS mount
 
-TrueNAS export: `/mnt/Default/videos/review`, host 192.168.4.219 only, mapall to `jdiekhoff`
-(ARM writes as uid 1002; mapall makes files owned like the rest of review).
+TrueNAS export (share #23): `/mnt/Default/videos/review`, host 192.168.4.219 only, mapall to TrueNAS `jdiekhoff`
+(uid 3000). ARM's uid 1002 never reaches the NAS; rips land as `3000:3000 664`.
+`review/` itself is owned by uid 1000 (pd-media-01's jdiekhoff, no TrueNAS user), so it's `chmod 777`
+(same as `videos/`) to let uid 3000 create folders in it.
 
 `/etc/fstab` on the VM:
 

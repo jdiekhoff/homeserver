@@ -2,6 +2,11 @@
 
 Runs on the dedicated VM `pd-ripper-01` (192.168.4.219), deployed from `~/_src/homeserver/arm`.
 
+## Image
+
+`arm-makemkv-fix:latest` is a local build from [`Dockerfile`](Dockerfile) (see its header for the base digest and caveats).
+`docker compose up -d` uses the existing local image; `docker compose build` rebuilds it.
+
 ## Storage
 
 | Path on VM | In container | What |
